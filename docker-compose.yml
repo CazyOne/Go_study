@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: bitnami/mariadb:10.11
+    container_name: opencart-db
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=no
+      - MARIADB_ROOT_PASSWORD=db_root_pass123
+      - MARIADB_USER=opencart_user
+      - MARIADB_PASSWORD=opencart_pass123
+      - MARIADB_DATABASE=opencart_db
+    volumes:
+      - mariadb_data:/bitnami/mariadb
+
+  opencart:
+    image: bitnami/opencart:3
+    container_name: opencart-app
+    restart: always
+    ports:
+      - "80:8080"
+      - "443:8443"
+    environment:
+      - OPENCART_DATABASE_HOST=mariadb
+      - OPENCART_DATABASE_PORT_NUMBER=3306
+      - OPENCART_DATABASE_USER=opencart_user
+      - OPENCART_DATABASE_PASSWORD=opencart_pass123
+      - OPENCART_DATABASE_NAME=opencart_db
+      - OPENCART_HOST=YOUR_SERVER_IP     # <--- 填你的服务器公网 IP（例如 47.100.x.x）
+      - OPENCART_USERNAME=admin          # 后台登录账号
+      - OPENCART_PASSWORD=admin123       # 后台登录密码
+      - OPENCART_EMAIL=admin@test.com
+    volumes:
+      - opencart_data:/bitnami/opencart
+    depends_on:
+      - mariadb
+
+volumes:
+  mariadb_data:
+    driver: local
+  opencart_data:
+    driver: local
